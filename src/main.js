@@ -89,11 +89,11 @@ function onLoad(framework) {
     turtles = new Array(numCacti);
 
     var objLoader = new THREE.OBJLoader();
-    objLoader.load('cactusFruit2.obj', function(obj){
+    objLoader.load('src/models/cactusFruit2.obj', function(obj){
         var fruitGeo =  obj.children[0].geometry;
         fruitObj = fruitGeo;
 
-        objLoader.load('cactusBark2.obj', function(obj2){
+        objLoader.load('src/models/cactusBark2.obj', function(obj2){
             var barkGeo =  obj2.children[0].geometry;
             barkObj = barkGeo;
 
@@ -120,7 +120,7 @@ function onLoad(framework) {
     agents = new Agents(numAgents, tex.textureVals, cactiList, shrubList);
     var aList = agents.getAgents();
 
-    objLoader.load('lowPolyTortoise.obj', function(obj){
+    objLoader.load('src/models/lowPolyTortoise.obj', function(obj){
 
       // LOOK: This function runs after the obj has finished loading
       var tortGeo =  obj.children[0].geometry;
@@ -138,7 +138,7 @@ function onLoad(framework) {
     });
 
     var shrubMaterial = new THREE.MeshLambertMaterial( { color: 0x1dc400, side: THREE.DoubleSide });
-    objLoader.load('shrubPoly.obj', function(obj){
+    objLoader.load('src/models/shrubPoly.obj', function(obj){
 
       var shrubGeo =  obj.children[0].geometry;
 
