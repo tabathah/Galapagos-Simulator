@@ -5,8 +5,6 @@ function Rule(prob, str) {
 	this.successorString = str; // The string that will replace the char that maps to this Rule
 }
 
-// TODO: Implement a linked list class and its requisite functions
-// as described in the homework writeup
 function LinkedList(first, last)
 {
 	this.firstNode = first;
@@ -32,11 +30,7 @@ class Node {
 
 }
 
-// TODO: Turn the string into linked list 
 export function stringToLinkedList(input_string, iter) {
-	// ex. assuming input_string = "F+X"
-	// you should return a linked list where the head is 
-	// at Node('F') and the tail is at Node('X')
 	var head = new Node(input_string.substring(0, 1), null, null, iter);
 	var lastNode = head;
 	for(var i = 1; i < input_string.length; i++)
@@ -46,16 +40,11 @@ export function stringToLinkedList(input_string, iter) {
 		lastNode = currNode;
 	}
 	var tail = lastNode;
-	// console.log(head);
-	// console.log(tail);
 	var newll = new LinkedList(head, tail)
-	// console.log(newll);
 	return newll;
 }
 
-// TODO: Return a string form of the LinkedList
 export function linkedListToString(linkedList) {
-	// ex. Node1("F")->Node2("X") should be "FX"
 	var result = "";
 	var currNode = linkedList.firstNode;
 	result = currNode.symbol;
@@ -67,8 +56,6 @@ export function linkedListToString(linkedList) {
 	return result;
 }
 
-// TODO: Given the node to be replaced, 
-// insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
 
 	var first = node.prev;
@@ -95,20 +82,24 @@ function replaceNode(linkedList, node, replacementString) {
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "TFFFFX";
-	this.xBranchProb = 0.75;
-	this.bBranchProb = 0.25;
+	this.endBarkProb = 0.4; //should be based on environment
 	this.grammar = {};
-	this.grammar['X'] = [
-		new Rule(this.xBranchProb-0.3, '[--<<F[+<C]<FX][->>FX][++<<F[->C]>FX][+<FX]'),
-		new Rule(0.3, '[++<F<FX][+>>FX][-->>F[+>C]<FX]'),
-		new Rule(this.bBranchProb, '[<F[+<C]B][->FB][+>>FB]')
+	this.axiom = 'S';
+	this.grammar['S'] = [
+		new Rule(0.3, 'S[+-<C]S[B]'),
+		new Rule(0.1, 'S[B][B]'),
+		new Rule(0.2, 'S[+-<C][B][B]'),
+		new Rule(0.1, 'S[B][B]S[B]'),
+		new Rule(0.2, 'S[+-<C][B]S[B]'),
+		new Rule(0.1, 'S[B]'),
 	];
 	this.grammar['B'] = [
-		new Rule(0.4, '[->F>FB][+<FB[->C]][--<<FB]'),
-		new Rule(0.2, '[+>[+C]FC[+C]][<<FB[+<C]][[->C]P]'),
-		new Rule(0.2, '[[-C]P][[-<C]P][+>>FB[-C]]'),
-		new Rule(0.2, '[+C]P')
+		new Rule(0.5, '+-S'),
+		new Rule(0.5, '+-<C'),
+	];
+	this.grammar['C'] = [
+		new Rule(0.5, 'C[+-C]'),
+		new Rule(0.5, 'C[+-C][+-C]'),
 	];
 	this.iterations = 4; 
 	
@@ -138,12 +129,17 @@ export default function Lsystem(axiom, grammar, iterations) {
 		}
 	}
 
-	// TODO
 	// This function returns a linked list that is the result 
 	// of expanding the L-system's axiom n times.
-	// The implementation we have provided you just returns a linked
-	// list of the axiom.
 	this.doIterations = function(n) {	
+		var ebp = this.endBarkProb;
+		var ax = "S";
+		while(Math.random() > ebp)
+		{
+			ax = "T" + ax;
+			ebp *= 2;
+		}
+		this.axiom = ax;
 		this.lSystemLL = stringToLinkedList(this.axiom, n);
 		for(var i = n-1; i >= 0; i--)
 		{
