@@ -1,67 +1,46 @@
 
-The objective of this assignment is to create an L System parser and generate interesting looking plants. Start by forking and then cloning this repository: [https://github.com/CIS700-Procedural-Graphics/Project3-LSystems](https://github.com/CIS700-Procedural-Graphics/Project3-LSystems)
+Welcome to my Senior Design project, the Galapagos Simulator!
 
-# L-System Parser
+You can find my live demo at https://tabathah.github.io/Galapagos-Simulator/.
 
-lsystem.js contains classes for L-system, Rule, and LinkedList. Here’s our suggested structure:
+You can also find a short video I recorded about my project at https://vimeo.com/334051639.
 
-**The Symbol Nodes/Linked List:**
+# Galapagos Simulator
 
-Rather than representing our symbols as a string like in many L-system implementations, we prefer to use a linked list. This allows us to store additional information about each symbol at time of parsing (e.g. what iteration was this symbol added in?) Since we’re adding and replacing symbols at each iteration, we also save on the overhead of creating and destroying strings, since linked lists of course make it easy to add and remove nodes. You should write a Linked List class with Nodes that contain at least the following information:
+Ecosystems are complex and delicate networks with elements that continually interact, causing adaptations and creating a never-ending evolutionary process. The Galapagos Islands are unique in their isolation from most human influences. This has limited the species present on each island to an extent that it is very easy to analyze the causes of certain species’ adaptations. I wanted to create a simulation of this evolutionary process through several modes of procedural modeling, focusing on a few particular species that will articulate the process best. I used several techniques to create a Galapagos Island’s environment, focusing particularly on giant tortoises, Opuntia cacti, and some form of ambient vegetation. Tasks included procedural generation of cacti influenced by tortoise predation, procedural placement of vegetation based on environmental factors and predation, and basic artificial life for tortoises.
 
-- The next node in the linked list
-- The previous node in the linked list
-- The grammar symbol at theis point in the overal string
+**L-System Opuntia Cacti:**
 
-We also recommend that you write the following functions to interact with your linked list:
+An L-System is a rule-based process for creating procedural models. You must create a starting axiom string and a set of rules which detail how each symbol expands into other symbols. The axiom is iterated upon for some n iterations. For each iteration, every symbol in the string is replaced with the symbols it corresponds to in the rule set. After these n iterations, you have a final string which will act as directions for creating a procedural model. To get more complex and random models, one can use stochastic L-Systems where a symbol can have multiple rules and the rule that will be used when expanding the string must be randomly chosen.
 
-- A function to symmetrically link two nodes together (e.g. Node A’s next is Node B, and Node B’s prev is Node A)
-- A function to expand one of the symbol nodes of the linked list by replacing it with several new nodes. This function should look at the list of rules associated with the symbol in the linked list’s grammar dictionary, then generate a uniform random number between 0 and 1 in order to determine which of the Rules should be used to expand the symbol node. You will refer to a Rule’s probability and compare it to your random number in order to determine which Rule should be chosen.
+In my cactus L-Systems, I used the following symbols:
 
-**Rules:**
+T: draw a bark piece in the current position and direction
 
-These are containers for the preconditions, postconditions and probability of a single replacement operation. They should operate on a symbol node in your linked list.
+S: draw a cactus cylinder in the current position and direction
 
-**L-system:**
+C: draw a cactus fruit in the current position and direction
 
-This is the parser, which will loop through your linked list of symbol nodes and apply rules at each iteration.
++: rotate about the world x-axis by some random angle
 
-Implement the following functions in L-System so that you can apply grammar rules to your axiom given some number of iterations. More details and implementation suggestions about  functions can be found in the TODO comments
+-: rotate about the world y-axis by some random angle
 
-- `stringToLinkedList(input_string)`
-- `linkedListToString(linkedList)`
-- `replaceNode(linkedList, node, replacementString)`
-- `doIterations(num)`
+[: start a new branch
 
-## Turtle
+]: end the current branch and return to the position and direction where this one started
 
-`turtle.js` has a function called renderSymbol that takes in a single node of a linked list and performs an operation to change the turtle’s state based on the symbol contained in the node. Usually, the turtle’s change in state will result in some sort of rendering output, such as drawing a cylinder when the turtle moves forward. We have provided you with a few example functions to illustrate how to write your own functions to be called by renderSymbol; these functions are rotateTurtle, moveTurtle, moveForward, and makeCylinder. If you inspect the constructor of the Turtle class, you can see how to associate an operation with a grammar symbol.
+I created a rule system which encourages more fruit to be created and for fruit to branch off one another, which created a fairly convincing cactus model.
 
-- Modify turtle.js to support operations associated with the symbols `[` and `]`
-    - When you parse `[` you need to store the current turtle state somewhere
-    - When you parse `]` you need to set your turtle’s state to the most recently stored state. Think of this a pushing and popping turtle states on and off a stack. For example, given `F[+F][-F]`, the turtle should draw a Y shape. Note that your program must be capable of storing many turtle states at once in a stack.
+The bark pieces are generated separately from the rest of the L-System. The number of bark pieces is determined by an edibility probability which is at first is randomly generated. The lower the edibility, the more bark pieces should be added.
 
-- In addition to operations for `[` and `]`, you must invent operations for any three symbols of your choosing.
+On an aesthetic note, I created the bark mesh in Maya and rotated them by a random amount, creating varied and interesting bark patterns. The cacti fruit have spikes whose distribution is determined by a 3D worley noise function.
 
+**Tortoise Animation:**
 
-## Interactivity
+The tortoises' movement is determined through behavioral animation. At each time step, each tortoise will choose to move at all with random probability. This creates a slower, more tortoise-like movement. If they do decide to move, three vectors are calculated to decide the direction they will go. First, an arrival vector. This is found by looping through all the cacti in the scene and calculating the distance between this tortoise and those cacti. The vector returned is the one in the direction of the closest cactus. This causes the tortoises to move toward the cacti which they want to eat. Second, a separation vector, calculated by looping through each of the other tortoises and negating the average vector toward them. This should keep the tortoises from running right into each other. Third and finally, a wander vector which is just calculated randomly. This adds natural deviation to the tortoises' movement.
 
-Using dat.GUI and the examples provided in the reference code, make some aspect of your demo an interactive variable. For example, you could modify:
+In the GUI dropdown you might notice a speed slider. If speed is reduced, the time step at which tortoises are asked to move increases in frequency and the simulation will speed up. 
 
-1. the axiom
-2. Your input grammer rules and their probability
-3. the angle of rotation of the turtle
-4. the size or color or material of the cylinder the turtle draws, etc!
+**L-System and Tortoise Interaction:**
 
-## L-System Plants
-
-Design a grammar for a new procedural plant! As the preceding parts of this assignment are basic computer science tasks, this is where you should spend the bulk of your time on this assignment. Come up with new grammar rules and include screenshots of your plants in your README. For inspiration, take a look at Example 7: Fractal Plant in Wikipedia: https://en.wikipedia.org/wiki/L-system Your procedural plant must have the following features
-
-1. Grow in 3D. Take advantage of three.js! 
-2. Have flowers or leaves that are added as a part of the grammar
-3. Variation. Different instances of your plant should look distinctly different!
-4. A twist. Broccoli trees are cool and all, but we hope to see sometime a little more surprising in your grammars
-
-# Publishing Your code
-
-Running `npm run deploy` will automatically build your project and push it to gh-pages where it will be visible at `username.github.io/repo-name`. NOTE: You MUST commit AND push all changes to your MASTER branch before doing this or you may lose your work. The `git` command must also be available in your terminal or command prompt. If you're using Windows, it's a good idea to use Git Bash.
+In addition to the previously mentioned edibility value, cacti have a life variable. Whenever a turtle is within a small distance of a cactus, its life reduces until it eventually dies, at which time it disappears and a new cactus appears. When a new cactus is generated, it appears in a new random location and its edibility value, used to decide how much bark is in the cactus, is determined by the average of the edibility values of all the remaining cacti in the environment. In addition, in the calculation of the tortoise arrival vector, cacti are considered as the closest goal with a probability equal to their edibility. With all these factors are combined, it is easy to see that over time, the cacti as a population should evolve to have more bark and thus more protection from the tortoises. This is a simple simulation of an evolutionary interaction that might happen in such an environment.
